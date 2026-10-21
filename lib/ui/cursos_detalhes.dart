@@ -1,113 +1,112 @@
-import 'package:flutter/material.dart';
 
-import 'botao.dart';
-import 'card.dart';
+import 'package:flutter/material.dart';
+import '../data/app_repository.dart';
+import '../data/app_repository_scope.dart';
+import '../root/pallet.dart';
+import '../ui/card.dart';
+import '../ui/botao.dart';
 import 'quiz.dart';
 
 class CursoDetalhesPage extends StatelessWidget {
-  final String titulo;
+  final String courseId;
 
   const CursoDetalhesPage({
     super.key,
-    required this.titulo,
+    required this.courseId,
   });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Conteúdo do Curso',
-        ),
-      ),
+      appBar: AppBar(title: const Text('Detalhes do curso')),
+      body: FutureBuilder<Course?>(
+        future: AppRepositoryScope.of(context).getCourse(courseId),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return const Center(
+              child: Text('Não foi possível carregar os detalhes do curso.'),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          final course = snapshot.data;
+          if (course == null) {
+            return const Center(child: Text('Curso não encontrado.'));
+          }
 
-      body: ListView(
-        padding: const EdgeInsets.all(18),
-        children: [
-          Text(
-            titulo,
-            style: const TextStyle(
-              fontSize: 26,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-
-          const SizedBox(height: 18),
-
-          const CardPadrao(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Conteúdo do Curso',
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                  ),
+          return ListView(
+            padding: const EdgeInsets.all(18),
+            children: [
+              const Icon(
+                Icons.menu_book_rounded,
+                color: AppPalette.roxo,
+                size: 55,
+              ),
+              const SizedBox(height: 15),
+              Text(
+                course.title,
+                style: const TextStyle(
+                  color: AppPalette.roxoEscuro,
+                  fontSize: 27,
+                  fontWeight: FontWeight.w800,
                 ),
-
-                SizedBox(height: 14),
-
-                Text('• Conceitos fundamentais'),
-
-                SizedBox(height: 7),
-
-                Text('• Organização financeira'),
-
-                SizedBox(height: 7),
-
-                Text('• Planejamento de gastos'),
-
-                SizedBox(height: 7),
-
-                Text('• Metas e objetivos'),
-
-                SizedBox(height: 7),
-
-                Text('• Tomada de decisões'),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 15),
-
-          CardPadrao(
-            child: Column(
-              crossAxisAlignment:
-                  CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Teste seus conhecimentos',
-                  style: TextStyle(
-                    fontSize: 19,
-                    fontWeight: FontWeight.bold,
-                  ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                course.description,
+                style: const TextStyle(
+                  color: AppPalette.textoSecundario,
+                  height: 1.5,
                 ),
-
-                const SizedBox(height: 8),
-
-                const Text(
-                  'Finalize o conteúdo e responda ao quiz.',
+              ),
+              const SizedBox(height: 22),
+              const Text(
+                'Conteúdo do curso',
+                style: TextStyle(
+                  color: AppPalette.roxoEscuro,
+                  fontSize: 19,
+                  fontWeight: FontWeight.w800,
                 ),
-
-                const SizedBox(height: 15),
-
-                Botao(
-                  texto: 'Iniciar Quiz',
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const QuizPage(),
+              ),
+              const SizedBox(height: 12),
+              CardPadrao(
+                child: Column(
+                  children: course.modules.asMap().entries.map((item) {
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      leading: CircleAvatar(
+                        backgroundColor: const Color(0xFFEFE5FF),
+                        child: Text(
+                          '${item.key + 1}',
+                          style: const TextStyle(
+                            color: AppPalette.roxo,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ),
+                      title: Text(
+                        item.value,
+                        style: const TextStyle(fontSize: 13),
                       ),
                     );
-                  },
+                  }).toList(),
                 ),
-              ],
-            ),
-          ),
-        ],
+              ),
+              const SizedBox(height: 20),
+              Botao(
+                texto: 'Iniciar Quiz',
+                icone: Icons.quiz_outlined,
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => QuizPage(courseId: course.id),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
   }

@@ -4,7 +4,14 @@ import 'botao.dart';
 import 'card.dart';
 
 class ResultadoQuizPage extends StatelessWidget {
-  const ResultadoQuizPage({super.key});
+  final int score;
+  final int total;
+
+  const ResultadoQuizPage({
+    super.key,
+    required this.score,
+    required this.total,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +21,6 @@ class ResultadoQuizPage extends StatelessWidget {
           'Resultado',
         ),
       ),
-
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(20),
@@ -27,9 +33,7 @@ class ResultadoQuizPage extends StatelessWidget {
                   color: Colors.green,
                   size: 65,
                 ),
-
                 const SizedBox(height: 15),
-
                 const Text(
                   'Quiz Finalizado!',
                   style: TextStyle(
@@ -37,16 +41,12 @@ class ResultadoQuizPage extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-
                 const SizedBox(height: 8),
-
-                const Text(
-                  'Você acertou 3 de 5 perguntas.',
+                Text(
+                  'Você acertou $score de $total perguntas.',
                   textAlign: TextAlign.center,
                 ),
-
                 const SizedBox(height: 20),
-
                 Botao(
                   texto: 'Voltar',
                   onPressed: () {

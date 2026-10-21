@@ -1,272 +1,108 @@
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-
 import '../root/pallet.dart';
+import '../ui/logo.dart';
 import 'login.dart';
-
-
-// ============================================================
-// SPLASH SCREEN
-// ============================================================
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
+
+  static const _gradient = LinearGradient(
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+    colors: [
+      Color(0xFFF7F2FF),
+      Color(0xFFEDE4FF),
+      Color(0xFFDCC8FF),
+    ],
+  );
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
 
-
-// ============================================================
-// ESTADO
-// ============================================================
-
 class _SplashScreenState extends State<SplashScreen>
     with SingleTickerProviderStateMixin {
-
-  late AnimationController _controller;
-
-  late Animation<double> _opacity;
-
-
-  // ==========================================================
-  // INIT
-  // ==========================================================
+  late final AnimationController controller;
+  late final Animation<double> escala;
 
   @override
   void initState() {
     super.initState();
 
-    // --------------------------------------------------------
-    // CONTROLLER
-    // --------------------------------------------------------
-
-    _controller = AnimationController(
+    controller = AnimationController(
       vsync: this,
-      duration: const Duration(
-        milliseconds: 900,
-      ),
+      duration: const Duration(milliseconds: 900),
     );
 
-
-    // --------------------------------------------------------
-    // FADE
-    // --------------------------------------------------------
-
-    _opacity = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
+    escala = CurvedAnimation(
+      parent: controller,
+      curve: Curves.easeOutBack,
     );
 
+    controller.forward();
 
-    // --------------------------------------------------------
-    // INICIA ANIMAÇÃO
-    // --------------------------------------------------------
+    Timer(const Duration(milliseconds: 2200), () {
+      if (!mounted) return;
 
-    _controller.forward();
-
-
-    // --------------------------------------------------------
-    // ABRE LOGIN DEPOIS DE 1,8 SEGUNDOS
-    // --------------------------------------------------------
-
-    Timer(
-      const Duration(
-        milliseconds: 1800,
-      ),
-      () {
-
-        if (!mounted) {
-          return;
-        }
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => const LoginPage(),
-          ),
-        );
-      },
-    );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => const LoginPage(),
+        ),
+      );
+    });
   }
-
-
-  // ==========================================================
-  // DISPOSE
-  // ==========================================================
 
   @override
   void dispose() {
-
-    _controller.dispose();
-
+    controller.dispose();
     super.dispose();
   }
 
-
-  // ==========================================================
-  // BUILD
-  // ==========================================================
-
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
-
       body: Container(
-
         width: double.infinity,
-
-        height: double.infinity,
-
-        // ----------------------------------------------------
-        // FUNDO GRADIENTE
-        // ----------------------------------------------------
-
         decoration: const BoxDecoration(
-
-          gradient: LinearGradient(
-
-            colors: [
-              Color(0xFFF7F2FF),
-              Color(0xFFEDE4FF),
-              Color(0xFFDCC8FF),
-            ],
-
-            begin: Alignment.topLeft,
-
-            end: Alignment.bottomRight,
-          ),
+          gradient: SplashScreen._gradient,
         ),
-
-
-        // ----------------------------------------------------
-        // CONTEÚDO
-        // ----------------------------------------------------
-
-        child: SafeArea(
-
-          child: Center(
-
-            child: FadeTransition(
-
-              opacity: _opacity,
-
-              child: Padding(
-
-                padding: const EdgeInsets.all(24),
-
-                child: Column(
-
-                  mainAxisSize: MainAxisSize.min,
-
-                  mainAxisAlignment:
-                      MainAxisAlignment.center,
-
-                  crossAxisAlignment:
-                      CrossAxisAlignment.center,
-
-                  children: [
-
-                    // ========================================
-                    // LOGO
-                    // ========================================
-
-                    Image.asset(
-                      'assets/educa.png',
-
-                      width: 130,
-
-                      height: 130,
-
-                      fit: BoxFit.contain,
-                    ),
-
-
-                    const SizedBox(
-                      height: 18,
-                    ),
-
-
-                    // ========================================
-                    // NOME
-                    // ========================================
-
-                    const Text(
-
-                      'Educa Finança',
-
-                      textAlign:
-                          TextAlign.center,
-
-                      style: TextStyle(
-
-                        color:
-                            AppPalette.roxo,
-
-                        fontSize: 30,
-
-                        fontWeight:
-                            FontWeight.w800,
-                      ),
-                    ),
-
-
-                    const SizedBox(
-                      height: 8,
-                    ),
-
-
-                    // ========================================
-                    // SUBTÍTULO
-                    // ========================================
-
-                    const Text(
-
-                      'Aprenda. Organize. Evolua.',
-
-                      textAlign:
-                          TextAlign.center,
-
-                      style: TextStyle(
-
-                        color:
-                            AppPalette.texto,
-
-                        fontSize: 14,
-                      ),
-                    ),
-
-
-                    const SizedBox(
-                      height: 30,
-                    ),
-
-
-                    // ========================================
-                    // LOADING
-                    // ========================================
-
-                    const SizedBox(
-
-                      width: 28,
-
-                      height: 28,
-
-                      child:
-                          CircularProgressIndicator(
-
-                        strokeWidth: 2.5,
-
-                        color:
-                            AppPalette.roxo,
-                      ),
-                    ),
-                  ],
+        child: Center(
+          child: ScaleTransition(
+            scale: escala,
+            child: const Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Logo(tamanho: 76),
+                SizedBox(height: 28),
+                Text(
+                  'Educa Finança',
+                  style: TextStyle(
+                    color: AppPalette.roxoEscuro,
+                    fontSize: 30,
+                    fontWeight: FontWeight.w800,
+                  ),
                 ),
-              ),
+                SizedBox(height: 10),
+                Text(
+                  'Aprenda. Organize. Evolua.',
+                  style: TextStyle(
+                    color: AppPalette.textoSecundario,
+                    fontSize: 14,
+                  ),
+                ),
+                SizedBox(height: 35),
+                SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: AppPalette.roxo,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

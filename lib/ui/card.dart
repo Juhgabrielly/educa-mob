@@ -1,50 +1,35 @@
+
 import 'package:flutter/material.dart';
+import '../root/pallet.dart';
 
 class CardPadrao extends StatelessWidget {
   final Widget child;
-  final VoidCallback? onTap;
+  final EdgeInsetsGeometry padding;
 
   const CardPadrao({
     super.key,
     required this.child,
-    this.onTap,
+    this.padding = const EdgeInsets.all(18),
   });
 
   @override
   Widget build(BuildContext context) {
-    final card = Container(
-      padding: const EdgeInsets.all(18),
+    return Container(
+      width: double.infinity,
+      padding: padding,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppPalette.superficie,
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(
-          color: const Color(0xFFE6DAF5),
-        ),
-        boxShadow: const [
+        border: Border.all(color: AppPalette.borda),
+        boxShadow: [
           BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 12,
-            offset: Offset(0, 4),
+            color: AppPalette.roxo.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 5),
           ),
         ],
       ),
       child: child,
-    );
-
-    // Card sem clique
-    if (onTap == null) {
-      return card;
-    }
-
-    // Card clicável
-    return Material(
-      color: Colors.transparent,
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: onTap,
-        child: card,
-      ),
     );
   }
 }

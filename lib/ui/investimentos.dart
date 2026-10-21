@@ -1,134 +1,179 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
+import '../data/app_repository.dart';
+import '../data/app_repository_scope.dart';
 import '../root/pallet.dart';
-import 'card.dart';
+import '../ui/card.dart';
 
 class InvestimentosPage extends StatelessWidget {
   const InvestimentosPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    return FutureBuilder<InvestmentPortfolio>(
+      future: AppRepositoryScope.of(context).getInvestmentPortfolio(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Center(
+            child: Text('Não foi possível carregar seus investimentos.'),
+          );
+        }
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        return _buildContent(snapshot.data!);
+      },
+    );
+  }
+
+  Widget _buildContent(InvestmentPortfolio portfolio) {
     return ListView(
       padding: const EdgeInsets.all(18),
       children: [
         const Text(
           'Seus Investimentos',
           style: TextStyle(
+            color: AppPalette.roxoEscuro,
             fontSize: 27,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w800,
           ),
         ),
-
-        const SizedBox(height: 5),
-
+        const SizedBox(height: 8),
         const Text(
-          'Acompanhe sua carteira e seus investimentos.',
-          style: TextStyle(
-            color: AppPalette.cinza,
-          ),
+          'Acompanhe sua carteira e aprenda a investir.',
+          style: TextStyle(color: AppPalette.textoSecundario),
         ),
-
-        const SizedBox(height: 18),
-
-        const Row(
+        const SizedBox(height: 20),
+        Row(
           children: [
             Expanded(
-              child: _Info(
+              child: _Indicador(
                 titulo: 'Patrimônio',
-                valor: 'R\$ 24.315,30',
+                valor: _formatCurrency(portfolio.total),
+                icone: Icons.account_balance_wallet_outlined,
               ),
             ),
-
-            SizedBox(width: 10),
-
+            const SizedBox(width: 10),
             Expanded(
-              child: _Info(
+              child: _Indicador(
                 titulo: 'Rentabilidade',
-                valor: '18,1%',
+                valor: '${portfolio.returnPercentage.toStringAsFixed(1)}%',
+                icone: Icons.trending_up,
               ),
             ),
           ],
         ),
-
-        const SizedBox(height: 15),
-
-        const CardPadrao(
-          child: Column(
-            crossAxisAlignment:
-                CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Minha carteira',
-                style: TextStyle(
-                  fontSize: 19,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-
-              SizedBox(height: 15),
-
-              _Investimento(
-                titulo: 'Tesouro Direto',
-                valor: 'R\$ 8.500,00',
-                porcentagem: '35%',
-              ),
-
-              _Investimento(
-                titulo: 'CDB',
-                valor: 'R\$ 6.200,00',
-                porcentagem: '25%',
-              ),
-
-              _Investimento(
-                titulo: 'Fundos',
-                valor: 'R\$ 4.100,00',
-                porcentagem: '17%',
-              ),
-
-              _Investimento(
-                titulo: 'Ações',
-                valor: 'R\$ 5.515,30',
-                porcentagem: '23%',
-              ),
-            ],
+        const SizedBox(height: 24),
+        const Text(
+          'Minha carteira',
+          style: TextStyle(
+            color: AppPalette.roxoEscuro,
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
           ),
+        ),
+        const SizedBox(height: 13),
+        CardPadrao(
+          child: Column(
+            children: portfolio.holdings.map((item) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 18),
+                child: Column(
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(child: Text(item.name)),
+                        Text(
+                          '${item.percentage.toStringAsFixed(0)}%',
+                          style: const TextStyle(
+                            color: AppPalette.roxo,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: LinearProgressIndicator(
+                        value: item.percentage / 100,
+                        minHeight: 8,
+                        color: AppPalette.roxoClaro,
+                        backgroundColor: AppPalette.borda,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }).toList(),
+          ),
+        ),
+        const SizedBox(height: 20),
+        const Text(
+          'Aprenda sobre investimentos',
+          style: TextStyle(
+            color: AppPalette.roxoEscuro,
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 12),
+        const _Info(
+          titulo: 'Renda fixa',
+          descricao: 'Conheça títulos e formas de remuneração.',
+          icone: Icons.savings_outlined,
+        ),
+        const SizedBox(height: 10),
+        const _Info(
+          titulo: 'Renda variável',
+          descricao: 'Entenda riscos e oportunidades do mercado.',
+          icone: Icons.show_chart,
         ),
       ],
     );
   }
+
+  String _formatCurrency(double amount) =>
+      'R\$ ${amount.toStringAsFixed(2).replaceAll('.', ',')}';
 }
 
-class _Info extends StatelessWidget {
+class _Indicador extends StatelessWidget {
   final String titulo;
   final String valor;
+  final IconData icone;
 
-  const _Info({
+  const _Indicador({
     required this.titulo,
     required this.valor,
+    required this.icone,
   });
 
   @override
   Widget build(BuildContext context) {
     return CardPadrao(
+      padding: const EdgeInsets.all(13),
       child: Column(
-        crossAxisAlignment:
-            CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Icon(icone, color: AppPalette.roxo),
+          const SizedBox(height: 12),
           Text(
             titulo,
             style: const TextStyle(
-              color: AppPalette.cinza,
+              color: AppPalette.textoSecundario,
               fontSize: 12,
             ),
           ),
-
-          const SizedBox(height: 6),
-
-          Text(
-            valor,
-            style: const TextStyle(
-              fontSize: 17,
-              fontWeight: FontWeight.bold,
+          const SizedBox(height: 5),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              valor,
+              style: const TextStyle(
+                color: AppPalette.roxoEscuro,
+                fontSize: 17,
+                fontWeight: FontWeight.w800,
+              ),
             ),
           ),
         ],
@@ -137,56 +182,45 @@ class _Info extends StatelessWidget {
   }
 }
 
-class _Investimento extends StatelessWidget {
+class _Info extends StatelessWidget {
   final String titulo;
-  final String valor;
-  final String porcentagem;
+  final String descricao;
+  final IconData icone;
 
-  const _Investimento({
+  const _Info({
     required this.titulo,
-    required this.valor,
-    required this.porcentagem,
+    required this.descricao,
+    required this.icone,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(
-        bottom: 16,
-      ),
-      child: Column(
+    return CardPadrao(
+      child: Row(
         children: [
-          Row(
-            children: [
-              Expanded(
-                child: Text(
+          Icon(icone, size: 30, color: AppPalette.roxo),
+          const SizedBox(width: 13),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   titulo,
                   style: const TextStyle(
-                    fontWeight: FontWeight.bold,
+                    color: AppPalette.roxoEscuro,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
-              ),
-
-              Text(valor),
-
-              const SizedBox(width: 8),
-
-              Text(
-                porcentagem,
-                style: const TextStyle(
-                  color: AppPalette.roxo,
-                  fontWeight: FontWeight.bold,
+                const SizedBox(height: 5),
+                Text(
+                  descricao,
+                  style: const TextStyle(
+                    color: AppPalette.textoSecundario,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 7),
-
-          const LinearProgressIndicator(
-            value: .55,
-            color: AppPalette.roxo,
-            backgroundColor: AppPalette.roxoClaro,
+              ],
+            ),
           ),
         ],
       ),

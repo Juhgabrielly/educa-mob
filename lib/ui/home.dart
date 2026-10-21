@@ -1,17 +1,16 @@
+
 import 'package:flutter/material.dart';
 
+import '../data/app_repository.dart';
+import '../data/app_repository_scope.dart';
 import '../root/pallet.dart';
-import 'card.dart';
-import 'logo.dart';
+import '../ui/logo.dart';
 import 'curso.dart';
 import 'investimentos.dart';
 import 'relatorios.dart';
 import 'perfil.dart';
 import 'metas.dart';
-
-// ======================================================
-// 1. PÁGINA PRINCIPAL
-// ======================================================
+import 'cursos_detalhes.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -21,10 +20,10 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int pagina = 0;
+  int selecionada = 0;
 
-  final List<Widget> telas = const [
-    InicioPage(),
+  final List<Widget> paginas = const [
+    InicioConteudo(),
     CursosPage(),
     InvestimentosPage(),
     RelatoriosPage(),
@@ -35,30 +34,29 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: AppPalette.fundo,
-        foregroundColor: AppPalette.texto,
-        elevation: 0,
-        title: const Logo(),
+        title: const Logo(tamanho: 28, compacto: true),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Nenhuma notificação nova.'),
+                ),
+              );
+            },
             icon: const Icon(Icons.notifications_none),
           ),
         ],
       ),
-
-      body: telas[pagina],
-
+      body: IndexedStack(
+        index: selecionada,
+        children: paginas,
+      ),
       bottomNavigationBar: NavigationBar(
-        selectedIndex: pagina,
-        indicatorColor: AppPalette.roxoClaro,
-
-        onDestinationSelected: (valor) {
-          setState(() {
-            pagina = valor;
-          });
+        selectedIndex: selecionada,
+        onDestinationSelected: (index) {
+          setState(() => selecionada = index);
         },
-
         destinations: const [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
@@ -72,17 +70,14 @@ class _HomePageState extends State<HomePage> {
           ),
           NavigationDestination(
             icon: Icon(Icons.trending_up),
-            selectedIcon: Icon(Icons.trending_up),
-            label: 'Investimentos',
+            label: 'Investir',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),
-            selectedIcon: Icon(Icons.bar_chart),
             label: 'Relatórios',
           ),
           NavigationDestination(
             icon: Icon(Icons.person_outline),
-            selectedIcon: Icon(Icons.person),
             label: 'Perfil',
           ),
         ],
@@ -91,229 +86,298 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-// ======================================================
-// 2. TELA INICIAL
-// ======================================================
-
-class InicioPage extends StatelessWidget {
-  const InicioPage({super.key});
+class InicioConteudo extends StatelessWidget {
+  const InicioConteudo({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(18, 14, 18, 20),
+    return ListView(
+      padding: const EdgeInsets.all(18),
+      children: [
+        const Text(
+          'Sua jornada de educação financeira começa aqui.',
+          style: TextStyle(
+            color: AppPalette.roxoEscuro,
+            fontSize: 25,
+            height: 1.2,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
 
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        const SizedBox(height: 10),
+
+        const Text(
+          'Aprenda a cuidar do seu dinheiro com confiança.',
+          style: TextStyle(
+            color: AppPalette.textoSecundario,
+            fontSize: 14,
+            height: 1.4,
+          ),
+        ),
+
+        const SizedBox(height: 22),
+
+        const _ContinueLearningCard(),
+
+        const SizedBox(height: 24),
+
+        const Text(
+          'Explore a plataforma',
+          style: TextStyle(
+            color: AppPalette.roxoEscuro,
+            fontSize: 19,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+
+        const SizedBox(height: 13),
+
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          crossAxisSpacing: 12,
+          mainAxisSpacing: 12,
+          childAspectRatio: 1.05,
           children: [
-            // ==================================================
-            // TÍTULO PRINCIPAL
-            // ==================================================
-
-            const Text(
-              'Aprenda no ritmo\ne evolua sua vida\nfinanceira.',
-              textAlign: TextAlign.left,
-              style: TextStyle(
-                fontSize: 27,
-                fontWeight: FontWeight.w800,
-                height: 1.12,
-                color: AppPalette.roxo,
-                decoration: TextDecoration.none,
-              ),
-            ),
-
-            const SizedBox(height: 10),
-
-            // ==================================================
-            // SUBTÍTULO
-            // ==================================================
-
-            const Text(
-              'Aprenda, organize sua vida financeira '
-              'e tome decisões melhores.',
-              style: TextStyle(
-                fontSize: 14,
-                color: AppPalette.cinza,
-                height: 1.45,
-                decoration: TextDecoration.none,
-              ),
-            ),
-
-            const SizedBox(height: 22),
-
-            // ==================================================
-            // CARDS DE ACESSO RÁPIDO
-            // ==================================================
-
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-
-              childAspectRatio: 1.05,
-
-              children: const [
-                _CardHome(
-                  icone: Icons.menu_book,
-                  titulo: 'Cursos',
-                  descricao: 'Aprenda sobre finanças.',
-                  pagina: CursosPage(),
-                ),
-
-                _CardHome(
-                  icone: Icons.bar_chart,
-                  titulo: 'Relatórios',
-                  descricao: 'Acompanhe seus resultados.',
-                  pagina: RelatoriosPage(),
-                ),
-
-                _CardHome(
-                  icone: Icons.trending_up,
-                  titulo: 'Investimentos',
-                  descricao: 'Veja seus investimentos.',
-                  pagina: InvestimentosPage(),
-                ),
-
-                _CardHome(
-                  icone: Icons.flag_outlined,
-                  titulo: 'Metas',
-                  descricao: 'Acompanhe seus objetivos.',
-                  pagina: MetasPage(),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 20),
-
-            // ==================================================
-            // CARD DE PROGRESSO
-            // ==================================================
-
-            CardPadrao(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Continue aprendendo',
-                    style: TextStyle(
-                      fontSize: 19,
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                    ),
+            _Atalho(
+              icone: Icons.menu_book,
+              titulo: 'Cursos',
+              descricao: 'Aprenda no seu ritmo',
+              aoTocar: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const CursosPage(),
                   ),
-
-                  const SizedBox(height: 8),
-
-                  const Text(
-                    'Planejamento e Organização Financeira',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const LinearProgressIndicator(
-                    value: 0.65,
-                    color: AppPalette.roxo,
-                    backgroundColor: AppPalette.roxoClaro,
-                  ),
-
-                  const SizedBox(height: 8),
-
-                  const Text(
-                    '65% concluído',
-                    style: TextStyle(
-                      color: AppPalette.cinza,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
-
-            const SizedBox(height: 20),
+            _Atalho(
+              icone: Icons.pie_chart_outline,
+              titulo: 'Relatórios',
+              descricao: 'Veja sua evolução',
+              aoTocar: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const RelatoriosPage(),
+                  ),
+                );
+              },
+            ),
+            _Atalho(
+              icone: Icons.trending_up,
+              titulo: 'Investimentos',
+              descricao: 'Conheça possibilidades',
+              aoTocar: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const InvestimentosPage(),
+                  ),
+                );
+              },
+            ),
+            _Atalho(
+              icone: Icons.flag_outlined,
+              titulo: 'Metas',
+              descricao: 'Planeje conquistas',
+              aoTocar: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const MetasPage(),
+                  ),
+                );
+              },
+            ),
           ],
         ),
-      ),
+      ],
     );
   }
 }
 
-// ======================================================
-// 3. CARD DE ACESSO RÁPIDO
-// ======================================================
+class _ContinueLearningCard extends StatelessWidget {
+  const _ContinueLearningCard();
 
-class _CardHome extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<CourseProgress?>(
+      future: AppRepositoryScope.of(context).getContinueLearning(),
+      builder: (context, snapshot) {
+        if (snapshot.hasError) {
+          return const Text('Não foi possível carregar seu curso atual.');
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final progress = snapshot.data;
+        if (progress == null) return const SizedBox.shrink();
+
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [AppPalette.roxo, AppPalette.roxoClaro],
+            ),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Row(
+                children: [
+                  Icon(Icons.auto_awesome, color: Colors.white, size: 21),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Continue aprendendo',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Text(
+                progress.course.title,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  height: 1.25,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              const SizedBox(height: 9),
+              Text(
+                progress.course.description,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 13,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 18),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: LinearProgressIndicator(
+                  value: progress.completion,
+                  minHeight: 8,
+                  color: Colors.white,
+                  backgroundColor: const Color(0x776D4DB1),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                '${(progress.completion * 100).round()}% concluído',
+                style: const TextStyle(color: Colors.white, fontSize: 12),
+              ),
+              const SizedBox(height: 15),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: AppPalette.roxo,
+                  ),
+                  onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => CursoDetalhesPage(
+                        courseId: progress.course.id,
+                      ),
+                    ),
+                  ),
+                  child: const Text('Continuar curso'),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _Atalho extends StatelessWidget {
   final IconData icone;
   final String titulo;
   final String descricao;
-  final Widget pagina;
+  final VoidCallback aoTocar;
 
-  const _CardHome({
+  const _Atalho({
     required this.icone,
     required this.titulo,
     required this.descricao,
-    required this.pagina,
+    required this.aoTocar,
   });
 
   @override
   Widget build(BuildContext context) {
-    return CardPadrao(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => pagina,
-          ),
-        );
-      },
-
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Ícone
-          Container(
-            width: 42,
-            height: 42,
-            decoration: BoxDecoration(
-              color: AppPalette.roxoClaro,
-              borderRadius: BorderRadius.circular(12),
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(17),
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: aoTocar,
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppPalette.borda,
             ),
-            child: Icon(
-              icone,
-              color: AppPalette.roxo,
-            ),
+            borderRadius: BorderRadius.circular(17),
           ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 42,
+                height: 42,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEFE5FF),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icone,
+                  color: AppPalette.roxo,
+                  size: 23,
+                ),
+              ),
 
-          const SizedBox(height: 12),
+              const Spacer(),
 
-          // Título
-          Text(
-            titulo,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.none,
-            ),
+              Text(
+                titulo,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppPalette.roxoEscuro,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+
+              const SizedBox(height: 4),
+
+              Text(
+                descricao,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: AppPalette.textoSecundario,
+                  fontSize: 11,
+                  height: 1.3,
+                ),
+              ),
+            ],
           ),
-
-          const SizedBox(height: 4),
-
-          // Descrição
-          Text(
-            descricao,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppPalette.cinza,
-              decoration: TextDecoration.none,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }

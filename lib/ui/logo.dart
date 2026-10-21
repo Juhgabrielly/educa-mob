@@ -1,39 +1,71 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../root/pallet.dart';
 
 class Logo extends StatelessWidget {
-  const Logo({super.key});
+  final double tamanho;
+  final bool compacto;
+
+  const Logo({
+    super.key,
+    this.tamanho = 46,
+    this.compacto = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: AppPalette.roxo,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: const Icon(
-            Icons.account_balance,
-            color: Colors.white,
-          ),
-        ),
+    final texto = compacto ? 'Educa' : 'Educa Finança';
+    final subtexto = compacto ? null : 'Educação financeira';
 
-        const SizedBox(width: 10),
-
-        const Text(
-          'EDUCA FINANÇA',
-          style: TextStyle(
-            color: AppPalette.texto,
-            fontSize: 17,
-            fontWeight: FontWeight.bold,
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: tamanho,
+            height: tamanho,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [
+                  AppPalette.roxoClaro,
+                  AppPalette.roxo,
+                ],
+              ),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(
+              Icons.account_balance_wallet_rounded,
+              color: Colors.white,
+              size: tamanho * 0.58,
+            ),
           ),
-        ),
-      ],
+          SizedBox(width: compacto ? 8 : 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                texto,
+                style: TextStyle(
+                  fontSize: compacto ? 14 : 16,
+                  fontWeight: FontWeight.w800,
+                  color: AppPalette.roxoEscuro,
+                ),
+              ),
+              if (subtexto != null)
+                Text(
+                  subtexto,
+                  style: const TextStyle(
+                    fontSize: 10,
+                    color: AppPalette.textoSecundario,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

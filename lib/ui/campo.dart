@@ -1,18 +1,29 @@
-import 'package:flutter/material.dart';
 
+import 'package:flutter/material.dart';
 import '../root/pallet.dart';
 
-class Campo extends StatelessWidget {
+class Campo extends StatefulWidget {
   final String titulo;
-  final String hint;
+  final String dica;
   final bool senha;
+  final TextEditingController? controller;
+  final TextInputType teclado;
 
   const Campo({
     super.key,
     required this.titulo,
-    required this.hint,
+    required this.dica,
     this.senha = false,
+    this.controller,
+    this.teclado = TextInputType.text,
   });
+
+  @override
+  State<Campo> createState() => _CampoState();
+}
+
+class _CampoState extends State<Campo> {
+  bool ocultar = true;
 
   @override
   Widget build(BuildContext context) {
@@ -20,38 +31,38 @@ class Campo extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          titulo,
+          widget.titulo,
           style: const TextStyle(
+            fontWeight: FontWeight.w700,
             color: AppPalette.texto,
-            fontWeight: FontWeight.bold,
+            fontSize: 13,
           ),
         ),
-        const SizedBox(height: 7),
+        const SizedBox(height: 8),
         TextField(
-          obscureText: senha,
+          controller: widget.controller,
+          keyboardType: widget.teclado,
+          obscureText: widget.senha && ocultar,
           decoration: InputDecoration(
-            hintText: hint,
-            filled: true,
-            fillColor: const Color(0xFFFCFAFF),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(11),
-              borderSide: const BorderSide(
-                color: Color(0xFFE5D9F5),
-              ),
+            hintText: widget.dica,
+            prefixIcon: Icon(
+              widget.senha
+                  ? Icons.lock_outline
+                  : Icons.person_outline,
+              size: 20,
             ),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(11),
-              borderSide: const BorderSide(
-                color: Color(0xFFE5D9F5),
-              ),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(11),
-              borderSide: const BorderSide(
-                color: AppPalette.roxo,
-                width: 1.5,
-              ),
-            ),
+            suffixIcon: widget.senha
+                ? IconButton(
+                    onPressed: () {
+                      setState(() => ocultar = !ocultar);
+                    },
+                    icon: Icon(
+                      ocultar
+                          ? Icons.visibility_off_outlined
+                          : Icons.visibility_outlined,
+                    ),
+                  )
+                : null,
           ),
         ),
       ],

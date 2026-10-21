@@ -1,57 +1,59 @@
-import 'package:flutter/material.dart';
 
-import './pallet.dart';
+import 'package:flutter/material.dart';
+import 'pallet.dart';
 
 class AppTheme {
-  static ThemeData light() {
+  static ThemeData get light {
     return ThemeData(
       useMaterial3: true,
-
+      fontFamily: 'Roboto',
       scaffoldBackgroundColor: AppPalette.fundo,
-
       colorScheme: ColorScheme.fromSeed(
         seedColor: AppPalette.roxo,
-        brightness: Brightness.light,
+        primary: AppPalette.roxo,
+        surface: AppPalette.superficie,
       ),
-
-      fontFamily: 'Roboto',
-
       appBarTheme: const AppBarTheme(
-        backgroundColor: Colors.transparent,
-        foregroundColor: AppPalette.texto,
+        backgroundColor: AppPalette.fundo,
+        foregroundColor: AppPalette.roxoEscuro,
         elevation: 0,
       ),
-
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
-
-        border: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(16),
-          ),
-          borderSide: BorderSide(
-            color: AppPalette.cinza,
+        hintStyle: const TextStyle(
+          color: AppPalette.textoSecundario,
+          fontSize: 14,
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 15,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(
+            color: AppPalette.borda,
           ),
         ),
-
-        enabledBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(16),
-          ),
-          borderSide: BorderSide(
-            color: AppPalette.cinza,
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(
+            color: AppPalette.borda,
           ),
         ),
-
-        focusedBorder: const OutlineInputBorder(
-          borderRadius: BorderRadius.all(
-            Radius.circular(16),
-          ),
-          borderSide: BorderSide(
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(13),
+          borderSide: const BorderSide(
             color: AppPalette.roxo,
-            width: 2,
+            width: 1.5,
           ),
+        ),
+      ),
+      navigationBarTheme: const NavigationBarThemeData(
+        backgroundColor: Colors.white,
+        indicatorColor: Color(0xFFEDE3FF),
+        labelTextStyle: WidgetStatePropertyAll(
+          TextStyle(fontSize: 11),
         ),
       ),
     );
